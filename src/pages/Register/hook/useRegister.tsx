@@ -13,7 +13,8 @@ const handleRegister = async (RegisterData: RegisterData) => {
 }
 
 const useRegister = () => {
-  const mutation = useMutation(handleRegister, {
+  const mutation = useMutation({
+    mutationFn: handleRegister,
     onSuccess: (data) => {
       console.log('User registered successfully:', data)
     },
