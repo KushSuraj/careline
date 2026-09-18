@@ -44,7 +44,7 @@ export default function Register() {
   return (
     <main className="min-h-screen bg-[#f6faf8] text-slate-900">
       <div className="mx-auto grid min-h-screen max-w-7xl gap-8 px-5 py-6 lg:grid-cols-[minmax(0,1fr)_38rem] lg:px-8">
-        <section className="relative hidden overflow-hidden rounded-[2rem] bg-slate-950 p-10 text-white lg:flex lg:flex-col lg:justify-between">
+        <section className="relative hidden overflow-hidden rounded-4xl bg-slate-950 p-10 text-white lg:flex lg:flex-col lg:justify-between">
           <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-teal-400/20 blur-3xl" />
           <div className="absolute -bottom-28 left-10 h-72 w-72 rounded-full bg-cyan-300/20 blur-3xl" />
           <Link
@@ -90,7 +90,7 @@ export default function Register() {
             <div className="mb-10 lg:hidden">
               <Logo />
             </div>
-            <div className="rounded-[2rem] bg-white/85 p-7 shadow-[0_24px_80px_rgba(15,23,42,0.10)] ring-1 ring-slate-200/70 backdrop-blur sm:p-9 md:p-10">
+            <div className="rounded-4xl bg-white/85 p-7 shadow-[0_24px_80px_rgba(15,23,42,0.10)] ring-1 ring-slate-200/70 backdrop-blur sm:p-9 md:p-10">
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-teal-700">
                 Create account
               </p>
@@ -107,7 +107,7 @@ export default function Register() {
                   <label className={`${ui.label} md:col-span-2`}>
                     <span>Full name</span>
                     <input
-                      className="min-h-10 w-full rounded-sm border border-slate-200 bg-white px-4 text-base text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10"
+                      className="min-h-10 w-full rounded-sm shadow-sm bg-white px-4 text-base  outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10"
                       {...register('name')}
                       placeholder="Aarav Sharma"
                       autoComplete="name"
@@ -123,7 +123,7 @@ export default function Register() {
                   <label className={ui.label}>
                     <span>Email address</span>
                     <input
-                      className="min-h-10 w-full rounded-sm border border-slate-200 bg-white px-4 text-base text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10"
+                      className="min-h-10 w-full rounded-sm shadow-sm bg-white px-4 text-base  outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10"
                       type="email"
                       {...register('email')}
                       placeholder="you@example.com"
@@ -140,7 +140,7 @@ export default function Register() {
                   <label className={ui.label}>
                     <span>Phone number</span>
                     <input
-                      className="min-h-10 w-full rounded-sm border border-slate-200 bg-white px-4 text-base text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10"
+                      className="min-h-10 w-full rounded-sm shadow-sm bg-white px-4 text-base outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10"
                       {...register('phone')}
                       placeholder="+91 98765 43210"
                       autoComplete="tel"
@@ -155,7 +155,7 @@ export default function Register() {
 
                   <label className={ui.label}>
                     <span>Password</span>
-                    <div className="flex rounded-sm border border-slate-200 bg-white focus-within:border-teal-500 focus-within:ring-4 focus-within:ring-teal-500/10">
+                    <div className="flex rounded-sm shadow-sm bg-white focus-within:border-teal-500 focus-within:ring-4 focus-within:ring-teal-500/10">
                       <input
                         className="min-h-10 rounded-sm flex-1 bg-transparent px-4 text-base outline-none placeholder:text-slate-400"
                         type={showPassword ? 'text' : 'password'}
@@ -182,7 +182,7 @@ export default function Register() {
 
                   <label className={ui.label}>
                     <span>Confirm password</span>
-                    <div className="flex rounded-sm border border-slate-200 bg-white focus-within:border-teal-500 focus-within:ring-4 focus-within:ring-teal-500/10">
+                    <div className="flex rounded-sm shadow-sm bg-white focus-within:border-teal-500 focus-within:ring-4 focus-within:ring-teal-500/10">
                       <input
                         className="min-h-10 rounded-sm flex-1 bg-transparent px-4 text-base outline-none placeholder:text-slate-400"
                         type={showConfirmPassword ? 'text' : 'password'}
