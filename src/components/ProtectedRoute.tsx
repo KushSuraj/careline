@@ -1,9 +1,10 @@
 import { Navigate, Outlet, useLocation } from 'react-router'
-import { useApp } from '../context/app-context'
 import type { Role } from '../types'
+import { selectAppState } from '../store/appSlice'
+import { useAppSelector } from '../store/hooks'
 
 export function ProtectedRoute({ roles }: { roles?: Role[] }) {
-  const { state } = useApp()
+  const state = useAppSelector(selectAppState)
   const location = useLocation()
   if (!state.signedIn)
     return <Navigate to="/login" replace state={{ from: location.pathname + location.search }} />

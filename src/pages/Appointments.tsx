@@ -12,13 +12,14 @@ import {
 } from 'lucide-react'
 import { cn, ui } from '../lib/ui'
 import { Link, useSearchParams } from 'react-router'
-import { useApp } from '../context/app-context'
 import { Avatar, Badge, Button, EmptyState, Modal, PageHeading } from '../components/ui'
 import { DOCTOR_ID, PATIENT_ID } from '../data/mock-data'
 import { formatDate, formatTime } from '../lib/dates'
 import { sortAppointments } from '../lib/appointments'
 import { downloadCalendar } from '../lib/downloads'
 import type { AppointmentStatus } from '../types'
+import { selectAppState, setAppointmentStatus } from '../store/appSlice'
+import { useAppDispatch, useAppSelector } from '../store/hooks'
 
 const tabs = [
   { label: 'Upcoming', status: 'Confirmed' },
@@ -28,7 +29,8 @@ const tabs = [
 ] as const
 
 export default function Appointments() {
-  const { state, setAppointmentStatus } = useApp()
+  const dispatch = useAppDispatch()
+  const state = useAppSelector(selectAppState)
   const [params, setParams] = useSearchParams()
   const [tab, setTab] = useState<AppointmentStatus | 'All'>('Confirmed')
   const [cancelId, setCancelId] = useState<string | null>(null)
@@ -214,7 +216,9 @@ export default function Appointments() {
                         <Button
                           className="min-h-9 px-3"
                           variant="secondary"
-                          onClick={() => setAppointmentStatus(appointment.id, 'Completed')}
+                          onClick={() =>
+                            dispatch(setAppointmentStatus(appointment.id, 'Completed'))
+                          }
                         >
                           <CheckCircle2 size={15} />
                           Mark completed
@@ -331,7 +335,7 @@ export default function Appointments() {
             <Button
               variant="danger"
               onClick={() => {
-                setAppointmentStatus(cancelId, 'Cancelled')
+                dispatch(setAppointmentStatus(cancelId, 'Cancelled'))
                 setCancelId(null)
               }}
             >

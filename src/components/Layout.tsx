@@ -21,10 +21,17 @@ import {
 } from 'lucide-react'
 import { cn, ui } from '../lib/ui'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router'
-import { useApp } from '../context/app-context'
 import { Avatar, Button, EmptyState, Modal } from './ui'
 import { DOCTOR_ID } from '../data/mock-data'
 import type { Role } from '../types'
+import { useAppDispatch, useAppSelector } from '../store/hooks'
+import {
+  markNotificationsRead,
+  selectAppState,
+  selectStorageAvailable,
+  signOut,
+  switchRole,
+} from '../store/appSlice'
 
 const patientLinks = [
   { to: '/', label: 'Overview', icon: LayoutDashboard },
@@ -64,7 +71,9 @@ export function Logo() {
 }
 
 export default function Layout() {
-  const { state, switchRole, signOut, markNotificationsRead, storageAvailable } = useApp()
+  const dispatch = useAppDispatch()
+  const state = useAppSelector(selectAppState)
+  const storageAvailable = useAppSelector(selectStorageAvailable)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const [helpOpen, setHelpOpen] = useState(false)
@@ -202,7 +211,7 @@ export default function Layout() {
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
       <a
-        className="fixed left-4 top-[-100px] z-[70] rounded-lg bg-teal-700 px-4 py-3 text-sm font-semibold text-white focus:top-4"
+        className="fixed left-4  z-70 rounded-lg bg-teal-700 px-4 py-3 text-sm font-semibold text-white focus:top-4"
         href="#main-content"
       >
         Skip to main content
@@ -269,7 +278,7 @@ export default function Layout() {
                 aria-label="Demo role"
                 value={state.role}
                 onChange={(event) => {
-                  switchRole(event.target.value as Role)
+                  dispatch(switchRole(event.target.value as Role))
                   navigate('/')
                 }}
                 className="h-10 appearance-none rounded-lg border border-slate-200 bg-white py-0 pl-3 pr-8 text-xs font-medium text-slate-700 outline-none focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10"
@@ -319,7 +328,7 @@ export default function Layout() {
               type="button"
               aria-label="Log out"
               onClick={() => {
-                signOut()
+                dispatch(signOut())
                 navigate('/login')
               }}
             >
@@ -351,7 +360,7 @@ export default function Layout() {
         <Modal title="Notifications" onClose={() => setNotificationsOpen(false)}>
           <div className="flex items-center justify-between gap-3">
             <span className="text-sm text-slate-500">{unread} unread notifications</span>
-            <button className={ui.link} onClick={markNotificationsRead}>
+            <button className={ui.link} onClick={() => dispatch(markNotificationsRead())}>
               Mark all as read
             </button>
           </div>
@@ -415,7 +424,7 @@ export default function Layout() {
           <Button
             variant="secondary"
             onClick={() => {
-              signOut()
+              dispatch(signOut())
               navigate('/login')
               setHelpOpen(false)
             }}

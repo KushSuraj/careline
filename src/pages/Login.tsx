@@ -4,9 +4,11 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Eye, EyeOff, LockKeyhole, Mail, Plus, ShieldCheck, Sparkles } from 'lucide-react'
 import { Link, Navigate, useNavigate } from 'react-router'
 import type { z } from 'zod'
-import { useApp } from '../context/app-context'
 import { loginSchema } from '../lib/schemas'
 import { cn } from '../lib/ui'
+import { selectAppState, signIn } from '../store/appSlice'
+import { useAppDispatch, useAppSelector } from '../store/hooks'
+import { useLogin } from './Login/hooks/useLogin'
 
 type LoginForm = z.infer<typeof loginSchema>
 
@@ -25,9 +27,11 @@ function FieldError({ id, children }: { id: string; children?: ReactNode }) {
 }
 
 export default function Login() {
-  const { state, signIn } = useApp()
+  const dispatch = useAppDispatch()
+  const state = useAppSelector(selectAppState)
   const [showPassword, setShowPassword] = useState(false)
   const navigate = useNavigate()
+  const loginMutation = useLogin()
   const {
     register,
     handleSubmit,
@@ -43,9 +47,15 @@ export default function Login() {
 
   if (state.signedIn) return <Navigate to="/" replace />
 
-  const submitLogin = () => {
-    signIn('patient')
-    navigate('/', { replace: true })
+  const submitLogin = async (values: LoginForm) => {
+    try {
+      const response = await loginMutation.mutateAsync(values)
+      if (typeof response.token === 'string') localStorage.setItem('token', response.token)
+      dispatch(signIn('patient'))
+      navigate('/', { replace: true })
+    } catch {
+      // React Query exposes the request error through loginMutation.error.
+    }
   }
 
   return (
@@ -208,12 +218,21 @@ export default function Login() {
                   <p>Secure access to your appointments, records, and saved doctors.</p>
                 </div>
 
+                {loginMutation.error && (
+                  <p
+                    className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
+                    role="alert"
+                  >
+                    {loginMutation.error.message}
+                  </p>
+                )}
+
                 <button
                   className="group inline-flex h-12 w-full items-center justify-center gap-2 rounded-sm bg-teal-700 px-5 text-[15px] font-semibold text-white shadow-lg shadow-teal-900/10 transition hover:-translate-y-0.5 hover:bg-teal-800 hover:shadow-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 disabled:pointer-events-none disabled:opacity-60"
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || loginMutation.isPending}
                 >
-                  {isSubmitting ? 'Signing in…' : 'Sign in'}
+                  {isSubmitting || loginMutation.isPending ? 'Signing in…' : 'Sign in'}
                 </button>
               </form>
 

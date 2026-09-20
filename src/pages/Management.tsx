@@ -14,12 +14,13 @@ import {
 } from 'lucide-react'
 import { cn, ui } from '../lib/ui'
 import { Link } from 'react-router'
-import { useApp } from '../context/app-context'
 import { Avatar, Badge, Button, EmptyState, Modal, PageHeading } from '../components/ui'
 import { DOCTOR_ID, specialties } from '../data/mock-data'
 import { formatDate } from '../lib/dates'
 import { csvCell, downloadText } from '../lib/downloads'
 import type { Doctor } from '../types'
+import { saveDoctor, selectAppState, showToast } from '../store/appSlice'
+import { useAppDispatch, useAppSelector } from '../store/hooks'
 
 const doctorFormSchema = z.object({
   name: z.string().trim().min(5, 'Enter the doctor’s full name.').max(80),
@@ -34,7 +35,7 @@ const doctorFormSchema = z.object({
 type DoctorForm = z.infer<typeof doctorFormSchema>
 
 function DoctorEditor({ doctor, onComplete }: { doctor?: Doctor; onComplete: () => void }) {
-  const { saveDoctor } = useApp()
+  const dispatch = useAppDispatch()
   const {
     register,
     handleSubmit,
@@ -56,17 +57,19 @@ function DoctorEditor({ doctor, onComplete }: { doctor?: Doctor; onComplete: () 
     <form
       className="space-y-5"
       onSubmit={handleSubmit((values) => {
-        saveDoctor({
-          id: doctor?.id ?? `doctor-${crypto.randomUUID()}`,
-          image: '',
-          color: '#e8f1eb',
-          languages: ['English'],
-          rating: 0,
-          reviews: 0,
-          verified: false,
-          ...doctor,
-          ...values,
-        })
+        dispatch(
+          saveDoctor({
+            id: doctor?.id ?? `doctor-${crypto.randomUUID()}`,
+            image: '',
+            color: '#e8f1eb',
+            languages: ['English'],
+            rating: 0,
+            reviews: 0,
+            verified: false,
+            ...doctor,
+            ...values,
+          }),
+        )
         onComplete()
       })}
       noValidate
@@ -186,7 +189,8 @@ function DoctorEditor({ doctor, onComplete }: { doctor?: Doctor; onComplete: () 
 }
 
 export default function Management({ mode }: { mode: 'doctors' | 'patients' | 'profile' }) {
-  const { state, saveDoctor, toast } = useApp()
+  const dispatch = useAppDispatch()
+  const state = useAppSelector(selectAppState)
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState('all')
   const [editor, setEditor] = useState<Doctor | 'new' | null>(null)
@@ -250,7 +254,7 @@ export default function Management({ mode }: { mode: 'doctors' | 'patients' | 'p
       ].join('\r\n'),
       'text/csv;charset=utf-8',
     )
-    toast('Demo patient list exported.')
+    dispatch(showToast('Demo patient list exported.'))
   }
   return (
     <div className={ui.page}>
@@ -357,7 +361,7 @@ export default function Management({ mode }: { mode: 'doctors' | 'patients' | 'p
                             <Button
                               variant="secondary"
                               className="min-h-9 px-3"
-                              onClick={() => saveDoctor({ ...doctor, verified: true })}
+                              onClick={() => dispatch(saveDoctor({ ...doctor, verified: true }))}
                             >
                               <ShieldCheck size={14} />
                               Verify
@@ -366,7 +370,7 @@ export default function Management({ mode }: { mode: 'doctors' | 'patients' | 'p
                             <button
                               className={ui.link}
                               onClick={() =>
-                                saveDoctor({ ...doctor, accepting: !doctor.accepting })
+                                dispatch(saveDoctor({ ...doctor, accepting: !doctor.accepting }))
                               }
                             >
                               {doctor.accepting ? 'Pause bookings' : 'Enable bookings'}

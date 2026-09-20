@@ -4,15 +4,17 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Bell, Check, LogOut, RotateCcw, ShieldCheck, UserRound } from 'lucide-react'
 import { cn, ui } from '../lib/ui'
 import { Link, useNavigate } from 'react-router'
-import { useApp } from '../context/app-context'
 import { Avatar, Badge, Button, Modal, PageHeading } from '../components/ui'
 import { profileSchema } from '../lib/schemas'
 import { localDate } from '../lib/dates'
 import { DOCTOR_ID } from '../data/mock-data'
 import type { Profile } from '../types'
+import { resetDemo, saveProfile, selectAppState, setPreference, signOut } from '../store/appSlice'
+import { useAppDispatch, useAppSelector } from '../store/hooks'
 
 export default function Settings() {
-  const { state, saveProfile, setPreference, signOut, resetDemo } = useApp()
+  const dispatch = useAppDispatch()
+  const state = useAppSelector(selectAppState)
   const [tab, setTab] = useState('profile')
   const [resetOpen, setResetOpen] = useState(false)
   const navigate = useNavigate()
@@ -77,7 +79,7 @@ export default function Settings() {
               {state.role === 'patient' ? (
                 <form
                   onSubmit={handleSubmit((values) => {
-                    saveProfile(values)
+                    dispatch(saveProfile(values))
                     reset(values)
                   })}
                   noValidate
@@ -255,7 +257,9 @@ export default function Settings() {
                         checked ? 'bg-teal-700' : 'bg-slate-200',
                       )}
                       onClick={() =>
-                        setPreference(item.key as keyof typeof state.preferences, !checked)
+                        dispatch(
+                          setPreference(item.key as keyof typeof state.preferences, !checked),
+                        )
                       }
                     >
                       <span
@@ -303,7 +307,7 @@ export default function Settings() {
                 <Button
                   variant="secondary"
                   onClick={() => {
-                    signOut()
+                    dispatch(signOut())
                     navigate('/login')
                   }}
                 >
@@ -338,7 +342,7 @@ export default function Settings() {
             </Button>
             <Button
               onClick={() => {
-                resetDemo()
+                dispatch(resetDemo())
                 setResetOpen(false)
                 navigate('/')
               }}

@@ -12,10 +12,11 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { Link } from 'react-router'
-import { useApp } from '../context/app-context'
 import { initials, localDate } from '../lib/dates'
 import { cn, ui } from '../lib/ui'
 import type { Doctor } from '../types'
+import { selectAppState, toggleFavorite } from '../store/appSlice'
+import { useAppDispatch, useAppSelector } from '../store/hooks'
 
 const buttonVariants = {
   primary: 'border-teal-700 bg-teal-700 text-white hover:bg-teal-800',
@@ -249,7 +250,8 @@ export function Modal({
 }
 
 export function DoctorCard({ doctor }: { doctor: Doctor }) {
-  const { state, toggleFavorite } = useApp()
+  const dispatch = useAppDispatch()
+  const state = useAppSelector(selectAppState)
   const saved = state.favorites.includes(doctor.id)
   return (
     <article className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md">
@@ -270,7 +272,7 @@ export function DoctorCard({ doctor }: { doctor: Doctor }) {
           )}
           aria-label={`${saved ? 'Unsave' : 'Save'} ${doctor.name}`}
           aria-pressed={saved}
-          onClick={() => toggleFavorite(doctor.id)}
+          onClick={() => dispatch(toggleFavorite(doctor.id))}
         >
           <Heart size={17} fill={saved ? 'currentColor' : 'none'} />
         </button>

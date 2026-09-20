@@ -16,7 +16,6 @@ import {
 import { cn, ui } from '../lib/ui'
 import { Link } from 'react-router'
 import { useState } from 'react'
-import { useApp } from '../context/app-context'
 import {
   Avatar,
   Badge,
@@ -30,9 +29,11 @@ import { formatDate, formatTime, localDate } from '../lib/dates'
 import { sortAppointments } from '../lib/appointments'
 import { PATIENT_ID } from '../data/mock-data'
 import WorkspaceDashboard from './WorkspaceDashboard'
+import { selectAppState } from '../store/appSlice'
+import { useAppSelector } from '../store/hooks'
 
 export default function Dashboard() {
-  const { state } = useApp()
+  const state = useAppSelector(selectAppState)
   const [now] = useState(Date.now)
   if (state.role !== 'patient') return <WorkspaceDashboard />
   const appointments = state.appointments.filter((item) => item.patientId === PATIENT_ID)

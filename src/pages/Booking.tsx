@@ -14,17 +14,19 @@ import {
 } from 'lucide-react'
 import { cn, ui } from '../lib/ui'
 import { Link, useParams, useSearchParams } from 'react-router'
-import { useApp } from '../context/app-context'
 import { Avatar, Badge, Button, EmptyState, PageHeading } from '../components/ui'
 import { bookingSchema, type BookingInput } from '../lib/schemas'
 import { dayFromToday, formatDate, formatTime, isFutureSlot, localDate } from '../lib/dates'
 import { PATIENT_ID, TIME_SLOTS } from '../data/mock-data'
 import type { Appointment } from '../types'
+import { bookAppointment, selectAppState } from '../store/appSlice'
+import { useAppDispatch, useAppSelector } from '../store/hooks'
 
 export default function Booking() {
   const { doctorId } = useParams()
   const [params] = useSearchParams()
-  const { state, bookAppointment } = useApp()
+  const dispatch = useAppDispatch()
+  const state = useAppSelector(selectAppState)
   const doctor = state.doctors.find((item) => item.id === doctorId && item.verified)
   const rescheduleId = params.get('reschedule') ?? undefined
   const existing = state.appointments.find(
@@ -76,7 +78,7 @@ export default function Booking() {
       setStep(2)
       return
     }
-    const result = bookAppointment(input, rescheduleId)
+    const result = dispatch(bookAppointment(input, rescheduleId))
     if (result.error) {
       setError(result.error)
       setStep(1)

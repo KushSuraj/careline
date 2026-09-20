@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { Download, FileHeart, FileText, HeartPulse, Search, ShieldCheck } from 'lucide-react'
 import { cn, ui } from '../lib/ui'
-import { useApp } from '../context/app-context'
 import { Badge, Button, EmptyState, Modal, PageHeading } from '../components/ui'
 import { medicalRecords } from '../data/mock-data'
 import { formatDate } from '../lib/dates'
 import { downloadText } from '../lib/downloads'
+import { selectAppState, showToast } from '../store/appSlice'
+import { useAppDispatch, useAppSelector } from '../store/hooks'
 
 const recordStats = [
   {
@@ -29,7 +30,8 @@ const recordStats = [
 ]
 
 export default function Records() {
-  const { state, toast } = useApp()
+  const dispatch = useAppDispatch()
+  const state = useAppSelector(selectAppState)
   const [query, setQuery] = useState('')
   const [type, setType] = useState('All records')
   const [selected, setSelected] = useState<(typeof medicalRecords)[number] | null>(null)
@@ -43,7 +45,7 @@ export default function Records() {
       `careline-${record.id}-demo.txt`,
       `CARELINE · FICTIONAL DEMO RECORD\n\n${record.title}\nPatient: ${state.profile.name}\nClinician: ${record.doctor}\nDate: ${record.date}\nType: ${record.type}\n\n${record.description}\n\nThis file is sample UI data. It is not a medical document or medical advice.`,
     )
-    toast('Sample record downloaded.')
+    dispatch(showToast('Sample record downloaded.'))
   }
   return (
     <div className={ui.page}>

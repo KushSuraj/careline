@@ -2,12 +2,13 @@ import { useDeferredValue, useState } from 'react'
 import { Heart, Search, SlidersHorizontal, Stethoscope, X } from 'lucide-react'
 import { cn, ui } from '../lib/ui'
 import { useSearchParams } from 'react-router'
-import { useApp } from '../context/app-context'
 import { Button, DoctorCard, EmptyState, PageHeading } from '../components/ui'
 import { specialties } from '../data/mock-data'
+import { selectAppState } from '../store/appSlice'
+import { useAppSelector } from '../store/hooks'
 
 export default function Doctors({ savedOnly = false }: { savedOnly?: boolean }) {
-  const { state } = useApp()
+  const state = useAppSelector(selectAppState)
   const [params, setParams] = useSearchParams()
   const query = params.get('q') ?? ''
   const specialty = params.get('specialty') ?? 'All specialties'

@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
+  AlertCircle,
   Check,
   Eye,
   EyeOff,
@@ -16,11 +17,22 @@ import {
 } from 'lucide-react'
 import { Link, Navigate, useNavigate } from 'react-router'
 import type { z } from 'zod'
-import { useApp } from '../../context/app-context'
 import { registerSchema } from '../../lib/schemas'
 import { cn } from '../../lib/ui'
+import { RegistrationApiError } from '../../services/api/RegistrationService'
+import { useRegister } from './hooks/useRegister'
+import { selectAppState, showToast } from '../../store/appSlice'
+import { useAppDispatch, useAppSelector } from '../../store/hooks'
 
 type RegisterForm = z.infer<typeof registerSchema>
+
+const registrationFieldMap: Record<string, keyof RegisterForm> = {
+  username: 'name',
+  name: 'name',
+  email: 'email',
+  phone: 'phone',
+  password: 'password',
+}
 
 const inputClass =
   'peer h-10 w-full rounded-sm shadow-sm bg-white pl-11 pr-4 text-[15px] text-slate-950 outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-teal-600 focus:ring-4 focus:ring-teal-600/10 aria-[invalid=true]:border-rose-400 aria-[invalid=true]:focus:border-rose-500 aria-[invalid=true]:focus:ring-rose-500/10'
@@ -47,13 +59,16 @@ function FieldIcon({ icon: Icon }: { icon: LucideIcon }) {
 }
 
 export default function Register() {
-  const { state, signIn } = useApp()
+  const dispatch = useAppDispatch()
+  const state = useAppSelector(selectAppState)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const navigate = useNavigate()
+  const registration = useRegister()
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
@@ -66,9 +81,25 @@ export default function Register() {
 
   if (state.signedIn) return <Navigate to="/" replace />
 
-  const createAccount = () => {
-    signIn('patient')
-    navigate('/', { replace: true })
+  const createAccount = async (values: RegisterForm) => {
+    try {
+      const response = await registration.mutateAsync({
+        username: values.name.trim(),
+        email: values.email.trim().toLowerCase(),
+        phone: values.phone.trim(),
+        password: values.password,
+      })
+
+      if (response.message?.trim()) dispatch(showToast(response.message.trim()))
+      navigate('/login', { replace: true })
+    } catch (error) {
+      if (!(error instanceof RegistrationApiError)) return
+
+      Object.entries(error.fieldErrors).forEach(([field, message]) => {
+        const formField = registrationFieldMap[field]
+        if (formField) setError(formField, { type: 'server', message })
+      })
+    }
   }
 
   return (
@@ -158,7 +189,12 @@ export default function Register() {
                 </span>
               </div>
 
-              <form className="mt-8 space-y-5" onSubmit={handleSubmit(createAccount)} noValidate>
+              <form
+                className="mt-8 space-y-5"
+                onSubmit={handleSubmit(createAccount)}
+                noValidate
+                aria-busy={registration.isPending}
+              >
                 <div className="grid gap-5 sm:grid-cols-2">
                   <div className="space-y-2 sm:col-span-2">
                     <label htmlFor="name" className="text-sm font-semibold text-slate-700">
@@ -300,12 +336,23 @@ export default function Register() {
                   <p>By creating an account, you agree to our Terms and Privacy Policy.</p>
                 </div>
 
+                {registration.isError && (
+                  <div
+                    className="flex items-start gap-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm leading-5 text-rose-800"
+                    role="alert"
+                    aria-live="polite"
+                  >
+                    <AlertCircle className="mt-0.5 shrink-0" size={17} aria-hidden="true" />
+                    <p>{registration.error.message}</p>
+                  </div>
+                )}
+
                 <button
                   className="group inline-flex h-12 w-full items-center justify-center gap-2 rounded-sm bg-teal-700 px-5 text-[15px] font-semibold text-white shadow-lg shadow-teal-900/10 transition hover:-translate-y-0.5 hover:bg-teal-800 hover:shadow-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 disabled:pointer-events-none disabled:opacity-60"
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || registration.isPending}
                 >
-                  {isSubmitting ? 'Creating account…' : 'Create account'}
+                  {registration.isPending ? 'Creating account…' : 'Create account'}
                 </button>
               </form>
 
