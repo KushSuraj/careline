@@ -1,6 +1,6 @@
 # Careline — Doctor Appointment Booking UI
 
-A responsive, browser-only healthcare interface built with React, Vite, TypeScript, and Tailwind CSS. All doctors, patients, appointments, notifications, and records are fictional. There is no Next.js, server, database, authentication service, payment gateway, or API integration.
+A responsive healthcare interface built with React, Vite, TypeScript, and Tailwind CSS. Authentication requests are wired through an HTTP service and React Query; doctors, patients, appointments, notifications, and records remain fictional browser data. There is no bundled server, database, payment gateway, or healthcare API.
 
 ## Run locally
 
@@ -17,7 +17,6 @@ Open `http://127.0.0.1:5173`. If Vite is already running in this folder, reuse t
 npm run build          # TypeScript check and optimized static build
 npm run preview        # Preview the dist output
 npm run lint           # ESLint and React Hooks rules
-npm test               # Booking, state recovery, and UI workflow tests
 npm run format:check   # Check formatting
 npm run format         # Apply formatting
 ```
@@ -39,12 +38,12 @@ Local demo state is stored under `careline-ui:v1` in `localStorage`. If storage 
 ```text
 src/
   components/       Layout, navigation, UI primitives, error boundary
-  context/          Typed Context API, demo transactions, persistence
+  store/            Redux Toolkit state, actions, transactions, and persistence
+  services/api/     HTTP services used by React Query mutations
   data/             Fictional doctors, appointments, and medical records
   lib/              Dates, schemas, booking validation, storage, downloads
   pages/            Patient, doctor, admin, sign-in, and settings screens
   styles/           Tailwind import, design tokens, responsive styles
-  test/             Vitest and Testing Library behavior tests
   types/            Shared domain types
   App.tsx           Routes, lazy loading, and demo route guards
   main.tsx          React entry point
@@ -53,7 +52,7 @@ src/
 ## UI architecture
 
 - Functional components, strict TypeScript, React Router, and lazy-loaded secondary pages.
-- Context API handles shared mock state; no server cache library is needed.
+- Redux Toolkit handles shared client/demo state. React Query owns API request lifecycle and server cache state.
 - React Hook Form and Zod validate booking, profile, sign-in, and doctor forms.
 - Appointments are 30 minutes long. Local date/time values avoid UTC date shifts. Bookings reject past times, dates more than 90 days away, unavailable/unverified doctors, doctor conflicts, and overlapping patient appointments. Rescheduling retains the original reference.
 - Versioned, schema-validated browser storage and recoverable empty/error states.
@@ -69,4 +68,4 @@ React 19.3.0, Vite 8.3.0, Tailwind CSS 4.3.3, and React Router 8.3.1 were instal
 
 This is a frontend demonstration, **not a clinical system**. Sign-in and role guards are UI simulations, not security boundaries. No real visits are booked, and no email, camera, microphone, payment, or healthcare API is activated. Notification preferences only persist demo settings. Use fictional information in forms.
 
-The build outputs static assets to `dist/`. A future static host must rewrite application routes to `index.html`. The CI workflow checks formatting, lint, tests, and the build; it does not publish anything. A future real healthcare service would require a separately designed backend, server-enforced authentication/authorization, and data handling and operational review.
+The build outputs static assets to `dist/`. A future static host must rewrite application routes to `index.html`. The CI workflow checks formatting, lint, and the build; it does not publish anything. A future real healthcare service would require a separately designed backend, server-enforced authentication/authorization, and data handling and operational review.

@@ -15,12 +15,14 @@ import {
 } from 'lucide-react'
 import { cn, ui } from '../lib/ui'
 import { Link, useParams } from 'react-router'
-import { useApp } from '../context/app-context'
 import { Avatar, Badge, Button, EmptyState, SectionHeading } from '../components/ui'
+import { selectAppState, toggleFavorite } from '../store/appSlice'
+import { useAppDispatch, useAppSelector } from '../store/hooks'
 
 export default function DoctorProfile() {
   const { doctorId } = useParams()
-  const { state, toggleFavorite } = useApp()
+  const dispatch = useAppDispatch()
+  const state = useAppSelector(selectAppState)
   const doctor = state.doctors.find((item) => item.id === doctorId && item.verified)
   if (!doctor)
     return (
@@ -62,7 +64,7 @@ export default function DoctorProfile() {
                 <Button
                   variant="secondary"
                   aria-pressed={saved}
-                  onClick={() => toggleFavorite(doctor.id)}
+                  onClick={() => dispatch(toggleFavorite(doctor.id))}
                 >
                   <Heart size={16} fill={saved ? 'currentColor' : 'none'} />
                   {saved ? 'Saved' : 'Save doctor'}

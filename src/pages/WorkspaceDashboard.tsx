@@ -11,14 +11,15 @@ import {
 import { cn, ui } from '../lib/ui'
 import { Link } from 'react-router'
 import { useState } from 'react'
-import { useApp } from '../context/app-context'
 import { Avatar, Badge, PageHeading, SectionHeading, StatCard } from '../components/ui'
 import { DOCTOR_ID } from '../data/mock-data'
 import { dayFromToday, formatDate, formatTime, localDate } from '../lib/dates'
 import { sortAppointments } from '../lib/appointments'
+import { selectAppState } from '../store/appSlice'
+import { useAppSelector } from '../store/hooks'
 
 export default function WorkspaceDashboard() {
-  const { state } = useApp()
+  const state = useAppSelector(selectAppState)
   const [range, setRange] = useState(7)
   const admin = state.role === 'admin'
   const ownDoctor = state.doctors.find((item) => item.id === DOCTOR_ID)!
